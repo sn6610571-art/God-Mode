@@ -1,0 +1,8 @@
+id=reqable-magisk
+name=Reqable Certificate Installer v1000
+version=v1.0
+versionCode=1
+author=Signflinger
+description=Injeta o certificado CA do Reqable no System CA Store (APEX/Conscrypt) para bypass total de SSL no Android 14+.
+updateJson=https://raw.githubusercontent.com/sn6610571-art/God-Mode/main/update.json
+
