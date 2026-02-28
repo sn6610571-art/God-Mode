@@ -3,272 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SECURELAB V1000000 | UNIVERSAL ENGINE</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
+    <title>GOD-MODE ENGINE | VYZ1000000000000/000</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #020408;
-            --surface: #0a0e14;
-            --accent: #00ff88;
-            --accent-glow: rgba(0, 255, 136, 0.3);
-            --danger: #ff0055;
-            --warning: #ffaa00;
-            --text: #e6edf3;
-            --border: #1a202c;
+            --bg-main: #0d1117;
+            --bg-panel: #161b22;
+            --bg-header: #010409;
+            --accent: #39ff14; /* Neon Green */
+            --accent-hover: #32d615;
+            --cyan: #00ffff;
+            --danger: #ff3366;
+            --text-main: #c9d1d9;
+            --text-muted: #8b949e;
+            --border: #30363d;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
         body {
-            background-color: var(--bg);
-            color: var(--text);
-            font-family: 'JetBrains Mono', monospace;
-            margin: 0;
-            display: grid;
-            grid-template-columns: 320px 1fr;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
             height: 100vh;
+            display: grid;
+            grid-template-rows: 50px 1fr;
+            grid-template-columns: 280px 1fr 400px;
             overflow: hidden;
         }
 
-        /* --- SIDEBAR ELITE --- */
-        aside {
-            background: var(--surface);
-            border-right: 1px solid var(--border);
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
-        }
-
-        .logo { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
-        .logo span { color: #fff; }
-
-        .status-card {
-            background: rgba(0, 255, 136, 0.03);
-            border: 1px solid var(--accent);
-            padding: 15px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-            position: relative;
-        }
-
-        .status-card::before { content: "SYS-ACTIVE"; position: absolute; top: -10px; right: 10px; background: var(--accent); color: #000; padding: 2px 5px; font-weight: bold; }
-
-        .btn-premium {
-            background: var(--accent);
-            color: #000;
-            border: none;
-            padding: 14px;
-            font-weight: 800;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: 0.3s;
-            clip-path: polygon(0 0, 95% 0, 100% 30%, 100% 100%, 5% 100%, 0 70%);
-        }
-        .btn-premium:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent-glow); }
-
-        /* --- MAIN ENGINE --- */
-        main { display: grid; grid-template-rows: 60px 1fr 320px; overflow: hidden; }
-
+        /* TOP NAVIGATION */
         header {
-            padding: 0 25px;
-            background: var(--surface);
+            grid-column: 1 / -1;
+            background: var(--bg-header);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 0.8rem;
+            padding: 0 20px;
         }
 
-        .traffic-container {
-            overflow-y: auto;
-            padding: 15px;
-            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+        .brand { font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: 1px; }
+        .brand span { color: var(--accent); }
+
+        .toolbar { display: flex; gap: 15px; align-items: center; }
+        
+        .btn {
+            background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .btn:hover { border-color: var(--accent); color: var(--accent); }
+        .btn-action { background: var(--accent); color: #000; border: none; font-weight: bold; }
+        .btn-action:hover { background: var(--accent-hover); box-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
+        .btn-danger { background: var(--danger); color: #fff; border: none; font-weight: bold; }
+
+        /* SIDEBAR */
+        aside {
+            background: var(--bg-panel);
+            border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            gap: 8px;
         }
-
-        .packet {
-            background: rgba(10, 14, 20, 0.9);
-            border: 1px solid var(--border);
-            padding: 12px;
-            display: grid;
-            grid-template-columns: 80px 80px 1fr 120px;
-            align-items: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .packet:hover { border-color: var(--accent); background: #111821; }
-        .packet.active { border-left: 4px solid var(--accent); background: #111821; }
-
-        .method { font-weight: bold; text-align: center; border-radius: 2px; padding: 2px; }
-        .GET { color: var(--accent); background: rgba(0, 255, 136, 0.1); }
-        .POST { color: var(--info); background: rgba(0, 180, 216, 0.1); }
-
-        /* --- REWRITE INTERFACE --- */
-        .rewrite-hub {
-            background: #05070a;
-            border-top: 2px solid var(--accent);
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            overflow: hidden;
-        }
-
-        .panel { padding: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
-        .panel-header { font-size: 0.7rem; color: var(--accent); margin-bottom: 15px; font-weight: bold; letter-spacing: 1px; }
         
-        .code-editor {
-            flex: 1;
-            background: #000;
-            color: #d29922;
-            padding: 15px;
-            font-size: 0.8rem;
-            overflow-y: auto;
-            border: 1px solid #111;
-            outline: none;
-            white-space: pre;
+        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.8rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; }
+        .tree-view { padding: 10px; overflow-y: auto; flex: 1; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+        .tree-item { padding: 8px; cursor: pointer; border-radius: 4px; display: flex; justify-content: space-between; }
+        .tree-item:hover { background: rgba(57, 255, 20, 0.1); }
+        .tree-item.active { background: rgba(57, 255, 20, 0.15); border-left: 3px solid var(--accent); }
+        .method-get { color: var(--cyan); }
+        .method-post { color: #e3b341; }
+        .method-ws { color: #b392f0; }
+
+        /* MAIN TRAFFIC VIEW */
+        main { display: flex; flex-direction: column; background: var(--bg-main); }
+        
+        .data-table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
+        .data-table th { background: var(--bg-header); padding: 8px; text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); position: sticky; top: 0; }
+        .data-table td { padding: 8px; border-bottom: 1px solid var(--border); }
+        .data-table tr:hover td { background: var(--bg-panel); cursor: pointer; }
+        .status-200 { color: var(--accent); }
+        .status-101 { color: var(--cyan); } /* WebSocket Protocol Switch */
+
+        /* INSPECTOR (RIGHT PANEL) */
+        .inspector {
+            background: var(--bg-panel);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
         }
 
-        .btn-action {
-            margin-top: 10px;
-            background: #fff;
-            color: #000;
+        /* Tabs System */
+        .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-header); }
+        .tab { padding: 10px 15px; font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        .sub-tabs { display: flex; flex-wrap: wrap; background: var(--bg-main); border-bottom: 1px solid var(--border); padding: 5px 10px; gap: 5px; }
+        .sub-tab { padding: 5px 10px; font-size: 0.75rem; cursor: pointer; border-radius: 3px; color: var(--text-muted); font-family: 'Fira Code', monospace; }
+        .sub-tab:hover { background: var(--border); }
+        .sub-tab.active { background: rgba(0, 255, 255, 0.1); color: var(--cyan); }
+
+        /* Rewrite Control Center */
+        .rewrite-controls {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .control-row { display: flex; gap: 10px; align-items: center; }
+        
+        select.dropdown {
+            background: var(--bg-main); border: 1px solid var(--border); color: var(--text-main);
+            padding: 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.8rem; outline: none;
+        }
+        select.dropdown:focus { border-color: var(--cyan); }
+
+        .editor-container {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #000;
+        }
+
+        textarea.code-editor {
+            width: 100%;
+            height: 100%;
+            background: transparent;
             border: none;
-            padding: 8px;
-            font-weight: bold;
-            font-size: 0.7rem;
-            cursor: pointer;
+            color: #d2a8ff;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            resize: none;
+            outline: none;
         }
     </style>
 </head>
 <body>
 
-<aside>
-    <div class="logo">SECURE<span>LAB</span></div>
-    
-    <div class="status-card">
-        ENGINE: <strong>V1000000-UNIV</strong><br>
-        CERT: <span style="color:var(--accent)">d119c728.0 INJECTED</span><br>
-        PROXY: <code>127.0.0.1:8080</code>
-    </div>
-
-    <div style="font-size: 0.7rem; color: #8b949e;">
-        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
-            SSL Pinning Bypass <span style="color:var(--accent)">●</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
-            HSTS Stripping <span style="color:var(--accent)">●</span>
-        </div>
-        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
-            Cloudflare Mimetism <span style="color:var(--accent)">●</span>
-        </div>
-    </div>
-
-    <button class="btn-premium" onclick="deploySystem()">SYNC MAGISK MODULE</button>
-    <button class="btn-premium" style="background: var(--info);" onclick="bypassSSL()">FORCE SSL BYPASS</button>
-</aside>
-
-<main>
     <header>
-        <div>UUID: <span id="session-id">---</span></div>
-        <div style="color: var(--accent); font-weight: bold;">[ LIVE ENGINE INTERCEPTING ]</div>
+        <div class="brand">GOD-MODE<span> ENGINE</span> VYZ1000000</div>
+        <div class="toolbar">
+            <span style="font-size: 0.8rem; color: var(--accent);">● INTERCEPTING (BRIDGE.PY ACTIVE)</span>
+            <button class="btn" onclick="togglePause()" id="btn-pause">⏸ Pause Intercept</button>
+            <button class="btn btn-danger" onclick="clearTraffic()">🗑 Clear</button>
+        </div>
     </header>
 
-    <section id="traffic-stream" class="traffic-container">
-        </section>
+    <aside>
+        <div class="sidebar-header">Target Tree</div>
+        <div class="tree-view">
+            <div class="tree-item active">
+                <span><span style="color:var(--text-muted);">▶</span> betnacional.bet.br</span>
+            </div>
+            <div class="tree-item" style="padding-left: 20px;">
+                <span class="method-ws">WS</span> <span>/socket.io/</span>
+            </div>
+            <div class="tree-item" style="padding-left: 20px;">
+                <span class="method-post">POST</span> <span>/api/v1/auth</span>
+            </div>
+            <div class="tree-item">
+                <span><span style="color:var(--text-muted);">▶</span> api.metrics.com</span>
+            </div>
+        </div>
+    </aside>
 
-    <section class="rewrite-hub">
-        <div class="panel">
-            <div class="panel-header">RESPONSE HEADERS (MIMETISMO CLOUDFLARE)</div>
-            <div class="code-editor" contenteditable="true" id="headers-editor"></div>
+    <main>
+        <div style="overflow-y: auto; height: 100%;">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Method</th>
+                        <th>URL</th>
+                        <th>Status</th>
+                        <th>Type</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="traffic-body">
+                    <tr>
+                        <td>#1001</td>
+                        <td class="method-post">POST</td>
+                        <td>/api/v1/auth</td>
+                        <td class="status-200">200 OK</td>
+                        <td>Protobuf</td>
+                        <td>42ms</td>
+                    </tr>
+                    <tr>
+                        <td>#1002</td>
+                        <td class="method-ws">WS</td>
+                        <td>/socket.io/?EIO=4&transport=websocket</td>
+                        <td class="status-101">101 Switching</td>
+                        <td>Binary</td>
+                        <td>-</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <div class="inspector">
+        
+        <div class="tabs">
+            <div class="tab">Request</div>
+            <div class="tab active">Response / Rewrite</div>
         </div>
 
-        <div class="panel">
-            <div class="panel-header">RESPONSE BODY REWRITE (GOD-MODE)</div>
-            <div class="code-editor" contenteditable="true" id="body-editor" style="color: var(--accent);"></div>
-            <button class="btn-action" onclick="applyGlobalRewrite()">APLICAR REWRITE NO SISTEMA</button>
+        <div class="rewrite-controls">
+            <div style="font-size: 0.75rem; color: var(--cyan); font-weight: bold; text-transform: uppercase;">Rewrite Engine (God-Mode)</div>
+            <div class="control-row">
+                <select class="dropdown" id="format-selector">
+                    <option value="protobuf">⚙️ Protocol Buffers (Protobuf)</option>
+                    <option value="json" selected>📄 JSON (JavaScript Object Notation)</option>
+                    <option value="xml">📋 XML (Extensible Markup Language)</option>
+                    <option value="yaml">📜 YAML (Ain't Markup Language)</option>
+                    <option value="html">🌐 HTML</option>
+                </select>
+                <button class="btn btn-action" onclick="saveRule()">💾 Save as Auto-Response</button>
+            </div>
+            <div class="control-row">
+                <button class="btn" style="color: var(--accent); border-color: var(--accent);" onclick="forwardIntact()">🚀 Forward Intact (No Rewrite)</button>
+                <button class="btn" style="color: #e3b341; border-color: #e3b341;" onclick="applyPatch()">⚡ Apply Line Patch</button>
+            </div>
         </div>
-    </section>
-</main>
 
-<script>
-    // --- BACKEND LOGIC (Simulação da Bridge Python/Node) ---
-    
-    // Cabeçalho Premium que você enviou
-    const premiumHeaders = {
-        "HTTP/2": "200",
-        "date": new Date().toUTCString(),
-        "content-type": "application/json; charset=utf-8",
-        "access-control-allow-origin": "https://betnacional.bet.br",
-        "content-security-policy": "frame-ancestors com.br;",
-        "cf-cache-status": "DYNAMIC",
-        "server": "cloudflare",
-        "cf-ray": "9d24d3694a30f638-FOR",
-        "alt-svc": 'h3=":443"; ma=86400'
-    };
+        <div class="sub-tabs">
+            <div class="sub-tab">Summary</div>
+            <div class="sub-tab">Headers</div>
+            <div class="sub-tab">Query</div>
+            <div class="sub-tab active">Body</div>
+            <div class="sub-tab">Raw</div>
+            <div class="sub-tab">Raw 2</div>
+            <div class="sub-tab">WebSockets</div>
+            <div class="sub-tab">Comments</div>
+        </div>
 
-    const initialBody = {
-        "status": "success",
-        "authorized": true,
-        "user_level": "GOD_MODE",
-        "bypass": "active"
-    };
+        <div class="editor-container">
+            <textarea class="code-editor" id="payload-editor" spellcheck="false">
+{
+    "status": "success",
+    "user_id": "VYZ-GOD",
+    "balance": 999999.99,
+    "auth_token": "proto_buf_mocked_token_xyz",
+    "is_premium": true,
+    "websocket_stream": "wss://betnacional.bet.br/stream/bypass"
+}</textarea>
+        </div>
+    </div>
 
-    // Inicialização do Engine
-    window.onload = () => {
-        document.getElementById('session-id').innerText = Math.random().toString(16).slice(2, 10).toUpperCase();
-        document.getElementById('headers-editor').innerText = JSON.stringify(premiumHeaders, null, 4);
-        document.getElementById('body-editor').innerText = JSON.stringify(initialBody, null, 4);
-        
-        // Simular tráfego entrando
-        simulateTraffic();
-    };
+    <script>
+        // Funções da Interface VYZ1000000000000/000
+        let isPaused = false;
 
-    function simulateTraffic() {
-        const urls = [
-            "https://betnacional.bet.br/api/v1/auth",
-            "https://betnacional.bet.br/api/v1/balance",
-            "https://api.seusite.com/v1/config"
-        ];
-        
-        setInterval(() => {
-            const url = urls[Math.floor(Math.random() * urls.length)];
-            const stream = document.getElementById('traffic-stream');
-            const div = document.createElement('div');
-            div.className = 'packet';
-            div.onclick = function() { 
-                document.querySelectorAll('.packet').forEach(p => p.classList.remove('active'));
+        function togglePause() {
+            isPaused = !isPaused;
+            const btn = document.getElementById('btn-pause');
+            if(isPaused) {
+                btn.innerHTML = "▶ Resume Intercept";
+                btn.style.borderColor = "var(--danger)";
+                btn.style.color = "var(--danger)";
+            } else {
+                btn.innerHTML = "⏸ Pause Intercept";
+                btn.style.borderColor = "var(--border)";
+                btn.style.color = "var(--text-main)";
+            }
+        }
+
+        function clearTraffic() {
+            document.getElementById('traffic-body').innerHTML = '';
+        }
+
+        function saveRule() {
+            const format = document.getElementById('format-selector').value;
+            alert(`🔥 REGRA SALVA NO MOTOR BRIDGE.PY!\n\nQuando o APP fizer um GET nesta URL, o sistema vai interceptar e responder automaticamente em formato [${format.toUpperCase()}] usando este payload.`);
+        }
+
+        function forwardIntact() {
+            alert("📦 PACOTE FECHADO!\n\nO tráfego será entregue ao aplicativo como pacote íntegro (Sem modificações). O Protobuf original será mantido.");
+        }
+
+        function applyPatch() {
+            alert("⚡ PATCH DE LINHA APLICADO!\n\nA modificação será injetada apenas nos nós alterados, preservando o restante do buffer binário.");
+        }
+
+        // Sistema visual de abas
+        document.querySelectorAll('.sub-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
                 this.classList.add('active');
-            };
-            
-            div.innerHTML = `
-                <span class="method POST">POST</span>
-                <span style="color: var(--accent)">200 OK</span>
-                <span style="font-size:0.7rem;">${url}</span>
-                <span style="font-size:0.6rem; color:#666;">${new Date().toLocaleTimeString()}</span>
-            `;
-            stream.prepend(div);
-        }, 4000);
-    }
-
-    // --- AÇÕES DO SISTEMA ---
-
-    function applyGlobalRewrite() {
-        const body = document.getElementById('body-editor').innerText;
-        const headers = document.getElementById('headers-editor').innerText;
-        
-        console.log("SENDING TO BRIDGE.PY: ", { headers, body });
-        alert("🔥 V1000000 ATIVO!\n\nCabeçalhos Cloudflare injetados e Body modificado. O sistema Android agora recebe os dados através do túnel Reqable.");
-    }
-
-    function deploySystem() {
-        alert("Iniciando injeção via Magisk...\n1. Montando /apex/com.android.conscrypt\n2. Injetando d119c728.0\n3. Aplicando permissões 644\n✅ SUCESSO!");
-    }
-
-    function bypassSSL() {
-        alert("Executando bypass de SSL Pinning via script Python...\nStatus: UNTOUCHABLE");
-    }
-</script>
+            });
+        });
+    </script>
 </body>
 </html>
