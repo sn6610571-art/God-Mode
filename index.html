@@ -2,142 +2,173 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>VYZ ENGINE | GOD-MODE 1000000</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VYZ FIGHTER | REWRITE ENGINE</title>
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #080a0c; --bg-panel: #111418; --bg-header: #010204;
-            --accent: #39ff14; --cyan: #00ffff; --danger: #ff3366; --border: #262c34;
+            --bg-main: #0a0c10; --bg-panel: #12151c; --accent: #39ff14; 
+            --cyan: #00ffff; --danger: #ff3366; --border: #232933;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
             font-family: 'Inter', sans-serif; background: var(--bg-main); color: #c9d1d9;
-            height: 100vh; display: grid; grid-template-rows: 60px 1fr; grid-template-columns: 280px 1fr 400px;
+            height: 100vh; display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* HEADER */
+        /* RESPONSIVE GRID PC/MOBILE */
+        .app-container {
+            display: grid; flex: 1;
+            grid-template-columns: 260px 1fr 420px;
+        }
+        @media (max-width: 1024px) {
+            .app-container { grid-template-columns: 1fr; grid-template-rows: 200px 1fr 300px; }
+            aside { display: none; } /* Oculta árvore no mobile p/ foco */
+        }
+
         header {
-            grid-column: 1 / -1; background: var(--bg-header); border-bottom: 2px solid var(--accent);
-            display: flex; align-items: center; justify-content: space-between; padding: 0 25px;
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
+            height: 60px; background: #010204; border-bottom: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 20px;
+            z-index: 100;
         }
-        .brand { font-weight: 900; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
-        .brand span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
-        /* STATUS INDICATOR */
-        .status-badge { display: flex; align-items: center; gap: 8px; font-family: 'Fira Code'; font-size: 0.8rem; }
-        .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+        .brand { font-weight: 900; color: #fff; letter-spacing: 2px; font-size: 1.2rem; }
+        .brand span { color: var(--accent); text-shadow: 0 0 12px var(--accent); }
 
-        /* SIDEBAR & TABLES */
-        aside { background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; }
-        .tree-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
-        .tree-item:hover { background: #1c2128; color: var(--accent); }
+        /* SIDEBAR (TREE) */
+        aside { background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; padding: 10px; }
+        .tree-node { font-family: 'Fira Code'; font-size: 0.75rem; padding: 8px; border-radius: 4px; cursor: pointer; border-bottom: 1px solid #1a1f26; }
+        .tree-node:hover { background: #1c222d; color: var(--accent); }
 
-        main { overflow-y: auto; background: var(--bg-main); }
+        /* TRAFFIC TABLE */
+        main { background: var(--bg-main); overflow-y: auto; border-right: 1px solid var(--border); }
         .data-table { width: 100%; border-collapse: collapse; font-family: 'Fira Code'; font-size: 0.8rem; }
-        .data-table th { background: var(--bg-header); padding: 12px; text-align: left; color: #8b949e; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
-        .data-table td { padding: 12px; border-bottom: 1px solid var(--border); transition: 0.1s; }
-        .data-table tr:hover td { background: rgba(57, 255, 20, 0.05); cursor: crosshair; }
+        .data-table th { background: #0d1117; padding: 12px; text-align: left; color: #8b949e; position: sticky; top: 0; }
+        .data-table td { padding: 10px; border-bottom: 1px solid var(--border); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .data-table tr.selected { background: rgba(57, 255, 20, 0.1) !important; border-left: 3px solid var(--accent); }
 
-        /* INSPECTOR */
-        .inspector { background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
-        .tabs { display: flex; background: var(--bg-header); }
-        .tab { flex: 1; padding: 15px; text-align: center; font-size: 0.8rem; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(57, 255, 20, 0.05); }
+        /* INSPECTOR & EDITOR */
+        .inspector { background: var(--bg-panel); display: flex; flex-direction: column; height: 100%; }
+        .tabs { display: flex; background: #010204; border-bottom: 1px solid var(--border); }
+        .tab { flex: 1; padding: 12px; text-align: center; font-size: 0.75rem; font-weight: bold; cursor: pointer; color: #8b949e; }
+        .tab.active { color: var(--accent); border-bottom: 2px solid var(--accent); background: #11141b; }
 
-        .editor-container { flex: 1; background: #000; padding: 15px; }
+        .editor-box { flex: 1; background: #000; padding: 10px; position: relative; }
         textarea.code-editor {
             width: 100%; height: 100%; background: transparent; border: none; color: var(--cyan);
-            font-family: 'Fira Code'; font-size: 0.9rem; outline: none; resize: none;
+            font-family: 'Fira Code'; font-size: 0.85rem; outline: none; resize: none;
         }
 
-        /* BUTTONS */
-        .btn { padding: 8px 16px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-panel); color: #fff; font-weight: 600; font-size: 0.75rem; }
-        .btn-action { background: var(--accent); color: #000; border: none; }
-        .btn-action:hover { background: #32d615; box-shadow: 0 0 15px var(--accent); }
+        .actions { padding: 15px; background: #0d1117; border-top: 1px solid var(--border); display: flex; gap: 10px; }
+        .btn { flex: 1; padding: 10px; border-radius: 4px; font-weight: bold; cursor: pointer; border: none; font-size: 0.75rem; transition: 0.3s; }
+        .btn-patch { background: var(--accent); color: #000; }
+        .btn-patch:hover { box-shadow: 0 0 15px var(--accent); }
+        .btn-clear { background: #1c222d; color: #fff; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="brand">GOD-MODE<span> ENGINE</span></div>
-    <div class="status-badge"><div class="dot"></div> ENGINE ACTIVE (BRIDGE ONLINE)</div>
-    <div style="display: flex; gap: 10px;">
-        <button class="btn" onclick="clearLogs()">CLEAR LOGS</button>
-        <button class="btn btn-action" onclick="toggleIntercept()">INTERCEPT: ON</button>
+    <div class="brand">VYZ <span>FIGHTER</span> 1.0</div>
+    <div style="display: flex; gap: 15px; align-items: center;">
+        <div id="status-dot" style="width:12px; height:12px; background:gray; border-radius:50%"></div>
+        <button class="btn btn-clear" onclick="clearLogs()">CLEAR</button>
     </div>
 </header>
 
-<aside id="target-tree">
-    <div style="padding: 15px; font-size: 0.7rem; color: var(--accent); font-weight: bold;">DISCOVERED ENDPOINTS</div>
+<div class="app-container">
+    <aside id="tree-view">
+        <div style="color:var(--accent); font-size:0.7rem; margin-bottom:10px; font-weight:bold">ROOT PROJECT TREE</div>
+        <div class="tree-node">📂 classes.dex (ACTIVE)</div>
+        <div class="tree-node">📂 endpoints/betnacional</div>
     </aside>
 
-<main>
-    <table class="data-table">
-        <thead>
-            <tr>
-                <th>TIME</th>
-                <th>METHOD</th>
-                <th>URL</th>
-                <th>STATUS</th>
-                <th>SIZE</th>
-            </tr>
-        </thead>
-        <tbody id="traffic-body">
-            </tbody>
-    </table>
-</main>
+    <main>
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>METHOD</th>
+                    <th>PATH</th>
+                    <th>SIZE</th>
+                </tr>
+            </thead>
+            <tbody id="traffic-list"></tbody>
+        </table>
+    </main>
 
-<div class="inspector">
-    <div class="tabs">
-        <div class="tab active">RESPONSE PAYLOAD</div>
-        <div class="tab">HEADERS</div>
-        <div class="tab">PROTOBUF HEX</div>
-    </div>
-    <div class="editor-container">
-        <textarea id="editor" class="code-editor" spellcheck="false">// Select a request to inspect...</textarea>
-    </div>
-    <div style="padding: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
-        <button class="btn btn-action" onclick="injectPatch()">⚡ APPLY LINE PATCH (GOD-MODE)</button>
-        <button class="btn" style="color: var(--danger); border-color: var(--danger);" onclick="dropPacket()">DROP PACKET</button>
+    <div class="inspector">
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('res')">RESPONSE</div>
+            <div class="tab" onclick="switchTab('req')">REQUEST</div>
+            <div class="tab" onclick="switchTab('head')">HEADERS</div>
+        </div>
+        <div class="editor-box">
+            <textarea id="main-editor" class="code-editor" spellcheck="false">// Select a flow...</textarea>
+        </div>
+        <div class="actions">
+            <button class="btn btn-patch" onclick="applyRewrite()">⚡ APPLY REWRITE (GOD-MODE)</button>
+        </div>
     </div>
 </div>
 
 <script>
-    const trafficBody = document.getElementById('traffic-body');
-    const editor = document.getElementById('editor');
-
-    // Conexão real com o Bridge.py
+    let currentFlows = {};
+    let selectedId = null;
     const ws = new WebSocket('ws://localhost:8765');
+    const dot = document.getElementById('status-dot');
+
+    ws.onopen = () => dot.style.background = 'var(--accent)';
+    ws.onclose = () => dot.style.background = 'var(--danger)';
 
     ws.onmessage = (event) => {
-        const req = JSON.parse(event.data);
-        addRequestToTable(req);
+        const data = JSON.parse(event.data);
+        
+        if (data.type === "TRAFFIC") {
+            currentFlows[data.id] = { req: data, res: null };
+            renderRow(data);
+        } else if (data.type === "RESPONSE") {
+            if (currentFlows[data.id]) currentFlows[data.id].res = data;
+        }
     };
 
-    function addRequestToTable(req) {
+    function renderRow(req) {
+        const tbody = document.getElementById('traffic-list');
         const row = document.createElement('tr');
+        row.id = `flow-${req.id}`;
         row.innerHTML = `
-            <td>${new Date().toLocaleTimeString()}</td>
             <td style="color:${req.method === 'POST' ? '#e3b341' : '#00ffff'}">${req.method}</td>
-            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis;">${req.url}</td>
-            <td style="color:var(--accent)">200 OK</td>
+            <td>${req.url.split('/').pop() || '/'}</td>
             <td>${req.size}b</td>
         `;
-        row.onclick = () => {
-            editor.value = JSON.stringify(req.body, null, 4);
-        };
-        trafficBody.prepend(row);
+        row.onclick = () => selectFlow(req.id);
+        tbody.prepend(row);
     }
 
-    function clearLogs() { trafficBody.innerHTML = ''; editor.value = '// Logs cleared.'; }
-    
-    function injectPatch() {
-        alert("PATCH INJECTED: O motor bridge.py agora está forçando este payload no classes.dex!");
-        // Aqui você enviaria o novo JSON de volta via WS para o bridge.py salvar
+    function selectFlow(id) {
+        selectedId = id;
+        document.querySelectorAll('tr').forEach(r => r.classList.remove('selected'));
+        document.getElementById(`flow-${id}`).classList.add('selected');
+        const flow = currentFlows[id];
+        document.getElementById('main-editor').value = flow.res ? flow.res.body : "// Waiting for response...";
+    }
+
+    function applyRewrite() {
+        if (!selectedId) return alert("Selecione um tráfego primeiro!");
+        const editedBody = document.getElementById('main-editor').value;
+        const patch = {
+            type: "PATCH_APPLY",
+            url: currentFlows[selectedId].req.url,
+            new_body: editedBody
+        };
+        ws.send(json.stringify(patch));
+        alert("🚀 REWRITE ENVIADO! O bridge.py agora forçará esta resposta no app.");
+    }
+
+    function clearLogs() {
+        document.getElementById('traffic-list').innerHTML = '';
+        currentFlows = {};
+        document.getElementById('main-editor').value = '';
     }
 </script>
 </body>
-    </html>
-    
+</html>
