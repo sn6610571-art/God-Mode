@@ -1,87 +1,104 @@
-from mitmproxy import http
+from mitmproxy import http, ctx, websocket
 import json
 import os
 import time
-import subprocess
+import asyncio
+# import websockets # Para comunicação com o seu Painel HTML
+# import schema_pb2 # Suas classes Protobuf compiladas
 
-# --- MAPEAMENTO DINÂMICO DA ÁRVORE GOD-MODE ---
-BASE_PATH = "/data/adb/modules/reqable-magisk"
-RULES_PATH = "/sdcard/Download/res/rewrite_rules.json"
-CERT_HASH = "d119c728.0"
-LIB_PATH = f"{BASE_PATH}/system/lib64" # Onde as .so residem
+# --- NOVA ÁRVORE GOD-MODE (100% ROOT/SISTEMA) ---
+APP_DATA_PATH = "/data/data/com.reqable.android/files/reqable/res"
+RULES_PATH = f"{APP_DATA_PATH}/rewrite_rules.json"
+SUFFIX_PATH = f"{APP_DATA_PATH}/publicsuffixes/publicsuffixes.gz"
+LIB_PATH = "/data/data/com.reqable.android/lib" 
 
 class GodModeEngine:
     def __init__(self):
         self.premium_headers = {
             "date": time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime()),
             "content-type": "application/json; charset=utf-8",
-            "access-control-allow-credentials": "true",
             "access-control-allow-origin": "https://betnacional.bet.br",
-            "vary": "Origin",
-            "content-security-policy": "frame-ancestors com.br;",
-            "x-frame-options": "deny",
-            "x-xss-protection": "1; mode=block",
-            "x-content-type-options": "nosniff",
             "cf-cache-status": "DYNAMIC",
             "server": "cloudflare",
             "cf-ray": "9d24d3694a30f638-FOR",
             "alt-svc": 'h3=":443"; ma=86400'
         }
-        self.check_system_integrity()
+        self.check_tree_integrity()
 
-    def check_system_integrity(self):
-        """Verifica se o Magisk injetou o certificado corretamente (Root Check)"""
-        system_cert = f"/system/etc/security/cacerts/{CERT_HASH}"
-        if os.path.exists(system_cert):
-            print(f"🛡️ [INTEGRITY] Certificado {CERT_HASH} detectado no Sistema!")
-        else:
-            print(f"⚠️ [WARNING] Certificado não encontrado no path de sistema. Verifique o service.sh.")
+    def check_tree_integrity(self):
+        """Verifica se a nova árvore foi injetada pelo setup_lab.sh"""
+        if os.path.exists(LIB_PATH):
+            ctx.log.info(f"📂 [TREE] Bibliotecas Nativas Mapeadas em {LIB_PATH}")
+        if os.path.exists(SUFFIX_PATH):
+            ctx.log.info("🌐 [TREE] Regras OkHttp PublicSuffix Carregadas!")
 
+    # --- 1. INTERCEPÇÃO DE REQUISIÇÃO (MIMETISMO) ---
     def request(self, flow: http.HTTPFlow):
-        # 1. MIMETISMO DE APP ORIGINAL (Bypass de detecção de Bot)
+        # Enganando o servidor para achar que somos o Flutter/Dart Original
         flow.request.headers["User-Agent"] = "Dart/3.0 (dart:io)"
         flow.request.headers["X-Requested-With"] = "com.betnacional.app"
-        
-        # 2. BYPASS DE ASSINATURA (Integrando com a Lib nativa se necessário)
-        if "X-HMAC-Signature" in flow.request.headers:
-            # Aqui o motor poderia chamar a libapp.so da sua árvore para validar o hash
-            print(f"⚡ [BYPASS] HMAC Session: {flow.request.headers.get('X-HMAC-Signature')[:16]}...")
 
+        # Bypass de Assinatura via Headers
+        if "X-HMAC-Signature" in flow.request.headers:
+            ctx.log.warn(f"⚡ [BYPASS] Assinatura Detectada: {flow.request.headers['X-HMAC-Signature'][:15]}...")
+
+    # --- 2. INTERCEPÇÃO DE RESPOSTA (REWRITE & PROTOBUF) ---
     def response(self, flow: http.HTTPFlow):
-        # 3. ALVOS UNIVERSAIS
         targets = ["betnacional.bet.br", "api.seusite.com"]
         
         if any(t in flow.request.pretty_host for t in targets):
-            print(f"🎯 [GOD-MODE] Interceptando Alvo: {flow.request.pretty_host}")
+            ctx.log.info(f"🎯 [GOD-MODE] Alvo Interceptado: {flow.request.pretty_url}")
 
-            # 4. INJEÇÃO DE CABEÇALHOS (Unificação Total Cloudflare)
+            # Mimetismo Cloudflare
             for key, value in self.premium_headers.items():
                 flow.response.headers[key] = value
 
-            # 5. MOTOR DE REWRITE (Sincronizado com o Dashboard HTML)
+            # Anti-Cache
+            flow.response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+
+            content_type = flow.response.headers.get("Content-Type", "")
+
+            # --- MOTOR DE REWRITE DINÂMICO ---
             try:
-                if os.path.exists(RULES_PATH):
-                    with open(RULES_PATH, "r") as f:
-                        rules = json.load(f)
-                    
-                    if rules.get("enabled"):
-                        data = flow.response.json()
-                        modifications = rules.get("modifications", {})
-                        
-                        # Loop de Modificação Profissional
-                        for key, value in modifications.items():
-                            if key in data:
-                                data[key] = value
-                                print(f"💎 [MOD] {key} -> {value}")
-                        
-                        flow.response.set_text(json.dumps(data))
+                # 2.1. Processamento de PROTOBUF (Binário)
+                if "application/x-protobuf" in content_type or "application/grpc" in content_type:
+                    ctx.log.warn("📦 [PROTOBUF DETECTADO] Iniciando descompactação binária...")
+                    # Exemplo de como o motor aplica o Line Patch no Protobuf:
+                    # data = schema_pb2.ResponsePayload()
+                    # data.ParseFromString(flow.response.content)
+                    # if data.balance: 
+                    #     data.balance = 999999.99  # O Line Patch do HTML
+                    # flow.response.content = data.SerializeToString()
+                    # ctx.log.info("✅ Protobuf modificado e re-empacotado!")
 
-                # 6. BYPASS DE HSTS/CACHE (Anti-Detecção)
-                flow.response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-                flow.response.headers["Expires"] = "0"
-
+                # 2.2. Processamento de JSON
+                elif "application/json" in content_type:
+                    if os.path.exists(RULES_PATH):
+                        with open(RULES_PATH, "r") as f:
+                            rules = json.load(f)
+                        
+                        if rules.get("enabled"):
+                            data = json.loads(flow.response.content)
+                            for key, value in rules.get("modifications", {}).items():
+                                if key in data:
+                                    data[key] = value
+                                    ctx.log.info(f"💎 [PATCH] {key} -> {value}")
+                            
+                            flow.response.content = json.dumps(data).encode("utf-8")
             except Exception as e:
-                print(f"❌ [CRITICAL] Erro no processamento do payload: {e}")
+                ctx.log.error(f"❌ [FALHA NO REWRITE]: {e}")
+
+    # --- 3. INTERCEPÇÃO DE WEBSOCKETS (LIVE STREAM) ---
+    def websocket_message(self, flow: websocket.WebSocketFlow):
+        message = flow.messages[-1]
+        direcao = "CLIENT -> SERVER" if message.from_client else "SERVER -> CLIENT"
+        
+        if message.is_text:
+            ctx.log.info(f"🌐 [WS TEXT] {direcao}: {message.content[:50]}")
+        else:
+            ctx.log.warn(f"📦 [WS BINARY/PROTO] {direcao}: {len(message.content)} bytes")
+            # Aqui o motor converte o binário e manda pro seu index.html
+            
+        # self.broadcast_to_ui(flow) # Envia para o Painel
 
 addons = [GodModeEngine()]
-    
