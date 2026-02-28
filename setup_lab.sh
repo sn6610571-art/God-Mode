@@ -1,33 +1,25 @@
 #!/bin/bash
-# setup_lab.sh — O Injetor do SecureLab v1000
+# setup_lab.sh - Versão Mobile (Executar via Termux no celular)
 
-echo "🚀 Iniciando Injeção de Recursos no Dispositivo..."
+echo "🚀 Iniciando injeção via Termux..."
 
-# 1. Definir o nome do pacote do seu APK (ajuste se necessário)
-PACKAGE_NAME="com.reqable.android" 
-TARGET_DIR="/data/data/$PACKAGE_NAME/files/reqable"
+# O script vai procurar o APK na sua pasta de Downloads do celular
+APK_LOCAL="/sdcard/Download/Reqable_sign.apk"
 
-# 2. Criar a estrutura de pastas originais (O que o .so procura)
-adb shell "su -c 'mkdir -p $TARGET_DIR/res $TARGET_DIR/cert $TARGET_DIR/scripts'"
+if [ -f "$APK_LOCAL" ]; then
+    echo "📦 APK encontrado! Instalando..."
+    adb install "$APK_LOCAL"
+else
+    echo "⚠️ Erro: Coloque o Reqable_sign.apk na pasta Download do celular"
+fi
 
-# 3. Enviar o motor Python e o Mapa de Versão
-echo "📦 Enviando Motores de Scripting..."
-adb push resources/overrides-python.zip /sdcard/Download/
-adb push resources/overrides-version.json /sdcard/Download/
-adb shell "su -c 'mv /sdcard/Download/overrides-* $TARGET_DIR/res/'"
+# Criar as pastas internas do app
+echo "📂 Criando pastas de sistema..."
+adb shell "su -c 'mkdir -p /data/data/com.reqable.android/files/reqable/res'"
 
-# 4. Enviar o Certificado para o Magisk (Bypass de SSL Pinning na raiz)
-echo "🔐 Injetando Certificado CA..."
-adb push certs/reqable_ca.crt /sdcard/Download/
-# O módulo Magisk vai ler deste caminho para mover para /system/etc/security/cacerts/
-
-# 5. Enviar o Script Bridge (O motor de Rewrite)
-echo "🌉 Ativando a Ponte de Interceptação..."
+# Enviar os scripts que você criou no GitHub
+echo "🌉 Enviando Bridge e Configurações..."
 adb push scripts/bridge.py /sdcard/Download/
-adb shell "su -c 'mv /sdcard/Download/bridge.py $TARGET_DIR/scripts/'"
+adb shell "su -c 'mv /sdcard/Download/bridge.py /data/data/com.reqable.android/files/reqable/res/'"
 
-# 6. Permissões de Execução (O segredo para não dar erro de I/O)
-adb shell "su -c 'chmod -R 777 $TARGET_DIR'"
-
-echo "✅ Sistema pronto! Reinicie o celular para o Magisk ativar o Certificado."
-
+echo "✅ Pronto! O motor v1000 foi injetado."
