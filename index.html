@@ -3,138 +3,143 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SecureLab v1000 | Advanced Intercept Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <title>SECURELAB V1000000 | UNIVERSAL ENGINE</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #05070a;
-            --surface: #0f1218;
+            --bg: #020408;
+            --surface: #0a0e14;
             --accent: #00ff88;
-            --accent-glow: rgba(0, 255, 136, 0.4);
-            --danger: #ff3e3e;
-            --info: #00b4d8;
+            --accent-glow: rgba(0, 255, 136, 0.3);
+            --danger: #ff0055;
+            --warning: #ffaa00;
             --text: #e6edf3;
-            --border: #21262d;
+            --border: #1a202c;
         }
 
+        * { box-sizing: border-box; }
         body {
             background-color: var(--bg);
             color: var(--text);
             font-family: 'JetBrains Mono', monospace;
             margin: 0;
             display: grid;
-            grid-template-columns: 280px 1fr;
+            grid-template-columns: 320px 1fr;
             height: 100vh;
             overflow: hidden;
         }
 
-        /* SIDEBAR - CONTROLE DE ATIVOS (PULL FROM APK) */
+        /* --- SIDEBAR ELITE --- */
         aside {
             background: var(--surface);
             border-right: 1px solid var(--border);
-            padding: 20px;
+            padding: 25px;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            box-shadow: 10px 0 30px rgba(0,0,0,0.5);
         }
 
-        .apk-status {
-            background: rgba(0, 255, 136, 0.05);
-            border: 1px dashed var(--accent);
+        .logo { font-family: 'Syne', sans-serif; font-size: 1.8rem; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+        .logo span { color: #fff; }
+
+        .status-card {
+            background: rgba(0, 255, 136, 0.03);
+            border: 1px solid var(--accent);
             padding: 15px;
-            border-radius: 8px;
-            font-size: 0.75rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            position: relative;
         }
 
-        .apk-status span { color: var(--accent); font-weight: bold; }
+        .status-card::before { content: "SYS-ACTIVE"; position: absolute; top: -10px; right: 10px; background: var(--accent); color: #000; padding: 2px 5px; font-weight: bold; }
 
-        /* MAIN PANEL */
-        main {
-            display: grid;
-            grid-template-rows: auto 1fr 250px;
-            overflow: hidden;
+        .btn-premium {
+            background: var(--accent);
+            color: #000;
+            border: none;
+            padding: 14px;
+            font-weight: 800;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: 0.3s;
+            clip-path: polygon(0 0, 95% 0, 100% 30%, 100% 100%, 5% 100%, 0 70%);
         }
+        .btn-premium:hover { transform: scale(1.02); box-shadow: 0 0 20px var(--accent-glow); }
+
+        /* --- MAIN ENGINE --- */
+        main { display: grid; grid-template-rows: 60px 1fr 320px; overflow: hidden; }
 
         header {
-            padding: 20px;
-            background: rgba(15, 18, 24, 0.8);
-            backdrop-filter: blur(10px);
+            padding: 0 25px;
+            background: var(--surface);
             border-bottom: 1px solid var(--border);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
         }
 
-        .logo { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent); }
-
-        /* TRAFFIC VIEWER */
-        #traffic-stream {
+        .traffic-container {
             overflow-y: auto;
-            padding: 10px;
+            padding: 15px;
+            background: url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 8px;
         }
 
         .packet {
-            background: var(--surface);
+            background: rgba(10, 14, 20, 0.9);
             border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 6px;
+            padding: 12px;
             display: grid;
-            grid-template-columns: 80px 100px 1fr 100px;
+            grid-template-columns: 80px 80px 1fr 120px;
             align-items: center;
-            font-size: 0.8rem;
-            transition: 0.2s;
             cursor: pointer;
+            transition: 0.2s;
         }
+        .packet:hover { border-color: var(--accent); background: #111821; }
+        .packet.active { border-left: 4px solid var(--accent); background: #111821; }
 
-        .packet:hover { border-color: var(--accent); background: #161b22; }
-        .method { font-weight: bold; padding: 2px 6px; border-radius: 4px; text-align: center; }
+        .method { font-weight: bold; text-align: center; border-radius: 2px; padding: 2px; }
         .GET { color: var(--accent); background: rgba(0, 255, 136, 0.1); }
         .POST { color: var(--info); background: rgba(0, 180, 216, 0.1); }
 
-        /* REWRITE & INSPECTOR BOARD */
-        #inspector-board {
-            background: #0d1117;
-            border-top: 1px solid var(--border);
+        /* --- REWRITE INTERFACE --- */
+        .rewrite-hub {
+            background: #05070a;
+            border-top: 2px solid var(--accent);
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
-            gap: 1px;
-            background: var(--border);
+            grid-template-columns: 1fr 1fr;
+            overflow: hidden;
         }
 
-        .panel { background: var(--bg); padding: 15px; overflow-y: auto; }
-        .panel-title { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; font-weight: bold; }
+        .panel { padding: 20px; display: flex; flex-direction: column; border-right: 1px solid var(--border); }
+        .panel-header { font-size: 0.7rem; color: var(--accent); margin-bottom: 15px; font-weight: bold; letter-spacing: 1px; }
+        
+        .code-editor {
+            flex: 1;
+            background: #000;
+            color: #d29922;
+            padding: 15px;
+            font-size: 0.8rem;
+            overflow-y: auto;
+            border: 1px solid #111;
+            outline: none;
+            white-space: pre;
+        }
 
-        /* BUTTONS & TOOLS */
-        .btn {
-            background: var(--accent);
-            color: black;
-            border: none;
-            padding: 10px;
-            border-radius: 4px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
+        .btn-action {
             margin-top: 10px;
+            background: #fff;
+            color: #000;
+            border: none;
+            padding: 8px;
+            font-weight: bold;
+            font-size: 0.7rem;
+            cursor: pointer;
         }
-
-        .tool-toggle {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.75rem;
-            margin-bottom: 8px;
-            padding: 5px;
-            border-bottom: 1px solid #1c2128;
-        }
-
-        .status-on { color: var(--accent); }
-        .status-off { color: var(--danger); }
-
-        pre { margin: 0; font-size: 0.75rem; color: #8b949e; }
-        .editable { color: #d29922; outline: none; }
     </style>
 </head>
 <body>
@@ -142,101 +147,127 @@
 <aside>
     <div class="logo">SECURE<span>LAB</span></div>
     
-    <div class="apk-status">
-        Mapeando: <span>Reqable_sign.apk</span><br>
-        Status: <span id="apk-load">LIGADO</span><br>
-        Raiz: <code>/sdcard/Download/res</code>
+    <div class="status-card">
+        ENGINE: <strong>V1000000-UNIV</strong><br>
+        CERT: <span style="color:var(--accent)">d119c728.0 INJECTED</span><br>
+        PROXY: <code>127.0.0.1:8080</code>
     </div>
 
-    <div class="panel-title">Security Bypass Hub</div>
-    <div class="tool-toggle">SSL Pinning (Frida) <span class="status-on">ATIVO</span></div>
-    <div class="tool-toggle">HSTS Force Bypass <span class="status-on">ATIVO</span></div>
-    <div class="tool-toggle">VPN Detection Mask <span class="status-on">ATIVO</span></div>
-    <div class="tool-toggle">Anti-Debug Patch <span class="status-off">DESLIGADO</span></div>
+    <div style="font-size: 0.7rem; color: #8b949e;">
+        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+            SSL Pinning Bypass <span style="color:var(--accent)">●</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+            HSTS Stripping <span style="color:var(--accent)">●</span>
+        </div>
+        <div style="display:flex; justify-content:space-between; margin-bottom: 5px;">
+            Cloudflare Mimetism <span style="color:var(--accent)">●</span>
+        </div>
+    </div>
 
-    <button class="btn" onclick="injectMagisk()">INSTALAR MAGISK MODULE</button>
-    <button class="btn" style="background: var(--info);" onclick="syncAssets()">SINCRONIZAR ASSETS (APK)</button>
+    <button class="btn-premium" onclick="deploySystem()">SYNC MAGISK MODULE</button>
+    <button class="btn-premium" style="background: var(--info);" onclick="bypassSSL()">FORCE SSL BYPASS</button>
 </aside>
 
 <main>
     <header>
-        <div style="display:flex; gap: 20px;">
-            <span>IP: 192.168.1.15</span>
-            <span>PORT: 8080</span>
-        </div>
-        <div style="color: var(--accent);">● LIVE INTERCEPTING</div>
+        <div>UUID: <span id="session-id">---</span></div>
+        <div style="color: var(--accent); font-weight: bold;">[ LIVE ENGINE INTERCEPTING ]</div>
     </header>
 
-    <section id="traffic-stream">
-        <div class="packet" onclick="inspect(this)">
-            <span class="method GET">GET</span>
-            <span>200 OK</span>
-            <span class="url">https://api.seusite.com/v1/user/config</span>
-            <span class="time">12:01:05</span>
-        </div>
-        <div class="packet" onclick="inspect(this)">
-            <span class="method POST">POST</span>
-            <span style="color: var(--danger)">403 ERR</span>
-            <span class="url">https://api.seusite.com/v1/auth/verify</span>
-            <span class="time">12:01:08</span>
-        </div>
-    </section>
+    <section id="traffic-stream" class="traffic-container">
+        </section>
 
-    <section id="inspector-board">
+    <section class="rewrite-hub">
         <div class="panel">
-            <div class="panel-title">Request Headers</div>
-            <pre id="req-headers">
-{
-  "Host": "api.seusite.com",
-  "User-Agent": "Dart/3.0 (dart:io)",
-  "X-HMAC-Signature": "f8a9...3b21",
-  "Content-Type": "application/json"
-}
-            </pre>
+            <div class="panel-header">RESPONSE HEADERS (MIMETISMO CLOUDFLARE)</div>
+            <div class="code-editor" contenteditable="true" id="headers-editor"></div>
         </div>
+
         <div class="panel">
-            <div class="panel-title">Response Body (Rewrite Mode)</div>
-            <pre contenteditable="true" class="editable" id="res-body">
-{
-  "status": "blocked",
-  "reason": "security_violation",
-  "is_admin": false
-}
-            </pre>
-            <button class="btn" style="padding: 5px; font-size: 0.6rem;" onclick="applyRewrite()">APLICAR REWRITE</button>
-        </div>
-        <div class="panel">
-            <div class="panel-title">Hex / Protobuf View</div>
-            <pre style="color: #58a6ff;">
-00000000: 48 54 54 50 2f 31 2e 31  20 32 30 30 20 4f 4b 0d  HTTP/1.1 200 OK.
-00000010: 0a 43 6f 6e 74 65 6e 74  2d 54 79 70 65 3a 20 61  .Content-Type: a
-00000020: 70 70 6c 69 63 61 74 69  6f 6e 2f 6a 73 6f 6e 0d  pplication/json.
-            </pre>
+            <div class="panel-header">RESPONSE BODY REWRITE (GOD-MODE)</div>
+            <div class="code-editor" contenteditable="true" id="body-editor" style="color: var(--accent);"></div>
+            <button class="btn-action" onclick="applyGlobalRewrite()">APLICAR REWRITE NO SISTEMA</button>
         </div>
     </section>
 </main>
 
 <script>
-    // Lógica para puxar dados do APK (Simulação de integração com a raiz /sdcard/)
-    function syncAssets() {
-        alert("Sincronizando com Reqable_sign.apk...\n- Extraindo classes.dex\n- Mapeando /assets/flutter_assets\n- Localizando overrides-python.zip");
-        console.log("Assets Sync Complete.");
+    // --- BACKEND LOGIC (Simulação da Bridge Python/Node) ---
+    
+    // Cabeçalho Premium que você enviou
+    const premiumHeaders = {
+        "HTTP/2": "200",
+        "date": new Date().toUTCString(),
+        "content-type": "application/json; charset=utf-8",
+        "access-control-allow-origin": "https://betnacional.bet.br",
+        "content-security-policy": "frame-ancestors com.br;",
+        "cf-cache-status": "DYNAMIC",
+        "server": "cloudflare",
+        "cf-ray": "9d24d3694a30f638-FOR",
+        "alt-svc": 'h3=":443"; ma=86400'
+    };
+
+    const initialBody = {
+        "status": "success",
+        "authorized": true,
+        "user_level": "GOD_MODE",
+        "bypass": "active"
+    };
+
+    // Inicialização do Engine
+    window.onload = () => {
+        document.getElementById('session-id').innerText = Math.random().toString(16).slice(2, 10).toUpperCase();
+        document.getElementById('headers-editor').innerText = JSON.stringify(premiumHeaders, null, 4);
+        document.getElementById('body-editor').innerText = JSON.stringify(initialBody, null, 4);
+        
+        // Simular tráfego entrando
+        simulateTraffic();
+    };
+
+    function simulateTraffic() {
+        const urls = [
+            "https://betnacional.bet.br/api/v1/auth",
+            "https://betnacional.bet.br/api/v1/balance",
+            "https://api.seusite.com/v1/config"
+        ];
+        
+        setInterval(() => {
+            const url = urls[Math.floor(Math.random() * urls.length)];
+            const stream = document.getElementById('traffic-stream');
+            const div = document.createElement('div');
+            div.className = 'packet';
+            div.onclick = function() { 
+                document.querySelectorAll('.packet').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
+            };
+            
+            div.innerHTML = `
+                <span class="method POST">POST</span>
+                <span style="color: var(--accent)">200 OK</span>
+                <span style="font-size:0.7rem;">${url}</span>
+                <span style="font-size:0.6rem; color:#666;">${new Date().toLocaleTimeString()}</span>
+            `;
+            stream.prepend(div);
+        }, 4000);
     }
 
-    function inspect(el) {
-        const url = el.querySelector('.url').innerText;
-        console.log("Inspecionando: " + url);
-        // Aqui o código buscaria no log real do sistema
+    // --- AÇÕES DO SISTEMA ---
+
+    function applyGlobalRewrite() {
+        const body = document.getElementById('body-editor').innerText;
+        const headers = document.getElementById('headers-editor').innerText;
+        
+        console.log("SENDING TO BRIDGE.PY: ", { headers, body });
+        alert("🔥 V1000000 ATIVO!\n\nCabeçalhos Cloudflare injetados e Body modificado. O sistema Android agora recebe os dados através do túnel Reqable.");
     }
 
-    function applyRewrite() {
-        const newBody = document.getElementById('res-body').innerText;
-        alert("Script Python disparado! Modificando resposta para: " + newBody);
-        // Comando que enviaria o novo corpo para o motor Python no celular
+    function deploySystem() {
+        alert("Iniciando injeção via Magisk...\n1. Montando /apex/com.android.conscrypt\n2. Injetando d119c728.0\n3. Aplicando permissões 644\n✅ SUCESSO!");
     }
 
-    function injectMagisk() {
-        alert("Gerando Módulo Magisk com Certificado CA User -> System...");
+    function bypassSSL() {
+        alert("Executando bypass de SSL Pinning via script Python...\nStatus: UNTOUCHABLE");
     }
 </script>
 </body>
