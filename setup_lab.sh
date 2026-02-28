@@ -1,25 +1,52 @@
 #!/bin/bash
-# setup_lab.sh - Versão Mobile (Executar via Termux no celular)
+# PROJETO: God-Mode (Signflinger Engine)
+# AUTOR: sn6610571-art
+# OBJETIVO: Deploy total via GitHub (Sem dependência de APK local)
 
-echo "🚀 Iniciando injeção via Termux..."
+echo "🔥 [God-Mode] Iniciando Deploy Estrutural via GitHub Cloud..."
 
-# O script vai procurar o APK na sua pasta de Downloads do celular
-APK_LOCAL="/sdcard/Download/Reqable_sign.apk"
+# 1. CONFIGURAÇÃO DA FONTE (URL do seu GitHub)
+GITHUB_BASE="https://raw.githubusercontent.com/sn6610571-art/God-Mode/main"
+APP_TARGET="com.reqable.android"
+APP_DATA="/data/data/$APP_TARGET/files/reqable/res"
+MAGISK_CERT_PATH="/data/adb/modules/reqable-magisk/system/etc/security/cacerts"
 
-if [ -f "$APK_LOCAL" ]; then
-    echo "📦 APK encontrado! Instalando..."
-    adb install "$APK_LOCAL"
-else
-    echo "⚠️ Erro: Coloque o Reqable_sign.apk na pasta Download do celular"
-fi
+# 2. PREPARAÇÃO DO AMBIENTE (ROOT)
+echo "📂 Criando infraestrutura de pastas no sistema..."
+su -c "mkdir -p $APP_DATA"
+su -c "mkdir -p $MAGISK_CERT_PATH"
+su -c "mkdir -p /data/local/tmp/godmode/lib"
 
-# Criar as pastas internas do app
-echo "📂 Criando pastas de sistema..."
-adb shell "su -c 'mkdir -p /data/data/com.reqable.android/files/reqable/res'"
+# 3. DOWNLOAD E INJEÇÃO DOS MOTORES (PYTHON & JS)
+echo "🌉 Baixando Motores de Intercepção..."
+# Baixando Bridge.py
+su -c "curl -sL $GITHUB_BASE/scripts/bridge.py -o $APP_DATA/bridge.py"
+# Baixando Bypass_core.js (da subpasta scripts/scripts/)
+su -c "curl -sL $GITHUB_BASE/scripts/scripts/bypass_core.js -o $APP_DATA/bypass_core.js"
+su -c "chmod 777 $APP_DATA/*"
 
-# Enviar os scripts que você criou no GitHub
-echo "🌉 Enviando Bridge e Configurações..."
-adb push scripts/bridge.py /sdcard/Download/
-adb shell "su -c 'mv /sdcard/Download/bridge.py /data/data/com.reqable.android/files/reqable/res/'"
+# 4. DOWNLOAD E INJEÇÃO DO CERTIFICADO (MAGISK)
+echo "🛡️  Baixando Certificado d119c728.0..."
+su -c "curl -sL $GITHUB_BASE/certs/d119c728.0 -o $MAGISK_CERT_PATH/d119c728.0"
+su -c "chmod 644 $MAGISK_CERT_PATH/d119c728.0"
+su -c "chown root:root $MAGISK_CERT_PATH/d119c728.0"
 
-echo "✅ Pronto! O motor v1000 foi injetado."
+# 5. SINCRONIZAÇÃO DAS LIBS NATIVAS (.SO)
+echo "📂 Sincronizando Bibliotecas SHA-256 (Cloud Sync)..."
+# Lista de libs detectadas na sua árvore
+LIBS=("libapp.so" "libflutter.so" "libreqable_cronet.so" "libreqable_netbare.so" "libtun2proxy.so")
+
+for lib in "${LIBS[@]}"; do
+    echo "📥 Baixando $lib..."
+    su -c "curl -sL $GITHUB_BASE/lib/arm64-v8a/$lib -o /data/local/tmp/godmode/lib/$lib"
+    su -c "cp /data/local/tmp/godmode/lib/$lib /data/data/$APP_TARGET/lib/" 2>/dev/null
+done
+
+# 6. LIMPEZA E FINALIZAÇÃO
+su -c "rm -rf /data/local/tmp/godmode"
+echo "--------------------------------------------------"
+echo "✅ [SUCCESS] Projeto God-Mode Injetado via Cloud!"
+echo "📍 Repositório: sn6610571-art / God-Mode"
+echo "📍 Mimetismo: Ativo via bridge.py"
+echo "📍 Integridade: Protegida via bypass_core.js"
+echo "--------------------------------------------------"
