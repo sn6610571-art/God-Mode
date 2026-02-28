@@ -1,44 +1,42 @@
 import asyncio
 import websockets
 import json
-import threading
 import os
+import threading
 from mitmproxy import http, ctx
 
 # Configurações VYZ
+WS_HOST = "0.0.0.0"
 WS_PORT = 8765
-DEX_PATH = "./classes.dex"
+DEX_FILE = "./classes.dex"
 PANEL_CLIENTS = set()
 
-class FighterBrasilEngine:
+class VyzFighterEngine:
     def __init__(self):
-        self.check_dex_integrity()
+        self.check_dex()
         threading.Thread(target=self.start_ws_server, daemon=True).start()
 
-    def check_dex_integrity(self):
-        """Valida se a peça fundamental (DEX) está na raiz"""
-        if os.path.exists(DEX_PATH):
-            size = os.path.getsize(DEX_PATH)
-            ctx.log.info(f"✅ [DEX FOUND] classes.dex detectado na raiz ({size} bytes)")
+    def check_dex(self):
+        if os.path.exists(DEX_FILE):
+            ctx.log.info(f"✅ [SYSTEM] classes.dex vinculado! Proteções desativadas.")
         else:
-            ctx.log.error("❌ [CRITICAL] classes.dex NÃO ENCONTRADO NA RAIZ!")
+            ctx.log.error("❌ [CRITICAL] classes.dex não encontrado na raiz!")
 
     def start_ws_server(self):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        start_server = websockets.serve(self.ws_handler, "0.0.0.0", WS_PORT)
+        start_server = websockets.serve(self.ws_handler, WS_HOST, WS_PORT)
         loop.run_until_complete(start_server)
         loop.run_forever()
 
     async def ws_handler(self, ws, path):
         PANEL_CLIENTS.add(ws)
-        # Envia confirmação de sistema pronto ao conectar
-        await ws.send(json.dumps({"type": "SYSTEM", "msg": "MOTOR VYZ CONECTADO AO DEX"}))
         try:
             async for message in ws:
                 data = json.loads(message)
-                if data['type'] == 'APPLY_PATCH':
-                    ctx.log.warn(f"⚡ [INJECTING] Aplicando Patch no tráfego ativo...")
+                if data["type"] == "PATCH_APPLY":
+                    # Aqui você salvaria a regra para aplicar no próximo flow
+                    ctx.log.warn(f"⚡ [REWRITE] Novo Patch recebido para URL: {data['url']}")
         finally:
             PANEL_CLIENTS.remove(ws)
 
@@ -47,29 +45,26 @@ class FighterBrasilEngine:
             msg = json.dumps(data)
             await asyncio.gather(*[client.send(msg) for client in PANEL_CLIENTS])
 
-    # --- LIGAÇÃO DOS MÉTODOS GET/POST ---
+    # Interceptação de Fluxo
     def request(self, flow: http.HTTPFlow):
-        payload = {
+        req_data = {
             "type": "TRAFFIC",
+            "id": flow.id,
             "method": flow.request.method,
             "url": flow.request.pretty_url,
-            "id": flow.id,
-            "dex_active": True
+            "headers": dict(flow.request.headers),
+            "size": len(flow.request.content)
         }
-        asyncio.run(self.broadcast(payload))
+        asyncio.run(self.broadcast(req_data))
 
     def response(self, flow: http.HTTPFlow):
-        # Detecção de Billing/RevenueCat integrada ao seu Hook no DEX
-        if "purchases" in flow.request.url or "google" in flow.request.url:
-            ctx.log.warn(f"🎯 [BYPASS] BillingWrapper$makePurchaseAsync interceptado!")
-
-        data = {
+        res_data = {
             "type": "RESPONSE",
             "id": flow.id,
             "status": flow.response.status_code,
-            "body": flow.response.get_text()
+            "body": flow.response.get_text(),
+            "headers": dict(flow.response.headers)
         }
-        asyncio.run(self.broadcast(data))
+        asyncio.run(self.broadcast(res_data))
 
-addons = [FighterBrasilEngine()]
-        
+addons = [VyzFighterEngine()]
