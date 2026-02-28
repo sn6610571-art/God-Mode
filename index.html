@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SecureLab v1000 | Advanced Intercept Engine</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --surface: #0f1218;
+            --accent: #00ff88;
+            --accent-glow: rgba(0, 255, 136, 0.4);
+            --danger: #ff3e3e;
+            --info: #00b4d8;
+            --text: #e6edf3;
+            --border: #21262d;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'JetBrains Mono', monospace;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR - CONTROLE DE ATIVOS (PULL FROM APK) */
+        aside {
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .apk-status {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.75rem;
+        }
+
+        .apk-status span { color: var(--accent); font-weight: bold; }
+
+        /* MAIN PANEL */
+        main {
+            display: grid;
+            grid-template-rows: auto 1fr 250px;
+            overflow: hidden;
+        }
+
+        header {
+            padding: 20px;
+            background: rgba(15, 18, 24, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo { font-family: 'Syne', sans-serif; font-size: 1.5rem; font-weight: 800; color: var(--accent); }
+
+        /* TRAFFIC VIEWER */
+        #traffic-stream {
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .packet {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 6px;
+            display: grid;
+            grid-template-columns: 80px 100px 1fr 100px;
+            align-items: center;
+            font-size: 0.8rem;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .packet:hover { border-color: var(--accent); background: #161b22; }
+        .method { font-weight: bold; padding: 2px 6px; border-radius: 4px; text-align: center; }
+        .GET { color: var(--accent); background: rgba(0, 255, 136, 0.1); }
+        .POST { color: var(--info); background: rgba(0, 180, 216, 0.1); }
+
+        /* REWRITE & INSPECTOR BOARD */
+        #inspector-board {
+            background: #0d1117;
+            border-top: 1px solid var(--border);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1px;
+            background: var(--border);
+        }
+
+        .panel { background: var(--bg); padding: 15px; overflow-y: auto; }
+        .panel-title { font-size: 0.7rem; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; font-weight: bold; }
+
+        /* BUTTONS & TOOLS */
+        .btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .tool-toggle {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            margin-bottom: 8px;
+            padding: 5px;
+            border-bottom: 1px solid #1c2128;
+        }
+
+        .status-on { color: var(--accent); }
+        .status-off { color: var(--danger); }
+
+        pre { margin: 0; font-size: 0.75rem; color: #8b949e; }
+        .editable { color: #d29922; outline: none; }
+    </style>
+</head>
+<body>
+
+<aside>
+    <div class="logo">SECURE<span>LAB</span></div>
+    
+    <div class="apk-status">
+        Mapeando: <span>Reqable_sign.apk</span><br>
+        Status: <span id="apk-load">LIGADO</span><br>
+        Raiz: <code>/sdcard/Download/res</code>
+    </div>
+
+    <div class="panel-title">Security Bypass Hub</div>
+    <div class="tool-toggle">SSL Pinning (Frida) <span class="status-on">ATIVO</span></div>
+    <div class="tool-toggle">HSTS Force Bypass <span class="status-on">ATIVO</span></div>
+    <div class="tool-toggle">VPN Detection Mask <span class="status-on">ATIVO</span></div>
+    <div class="tool-toggle">Anti-Debug Patch <span class="status-off">DESLIGADO</span></div>
+
+    <button class="btn" onclick="injectMagisk()">INSTALAR MAGISK MODULE</button>
+    <button class="btn" style="background: var(--info);" onclick="syncAssets()">SINCRONIZAR ASSETS (APK)</button>
+</aside>
+
+<main>
+    <header>
+        <div style="display:flex; gap: 20px;">
+            <span>IP: 192.168.1.15</span>
+            <span>PORT: 8080</span>
+        </div>
+        <div style="color: var(--accent);">● LIVE INTERCEPTING</div>
+    </header>
+
+    <section id="traffic-stream">
+        <div class="packet" onclick="inspect(this)">
+            <span class="method GET">GET</span>
+            <span>200 OK</span>
+            <span class="url">https://api.seusite.com/v1/user/config</span>
+            <span class="time">12:01:05</span>
+        </div>
+        <div class="packet" onclick="inspect(this)">
+            <span class="method POST">POST</span>
+            <span style="color: var(--danger)">403 ERR</span>
+            <span class="url">https://api.seusite.com/v1/auth/verify</span>
+            <span class="time">12:01:08</span>
+        </div>
+    </section>
+
+    <section id="inspector-board">
+        <div class="panel">
+            <div class="panel-title">Request Headers</div>
+            <pre id="req-headers">
+{
+  "Host": "api.seusite.com",
+  "User-Agent": "Dart/3.0 (dart:io)",
+  "X-HMAC-Signature": "f8a9...3b21",
+  "Content-Type": "application/json"
+}
+            </pre>
+        </div>
+        <div class="panel">
+            <div class="panel-title">Response Body (Rewrite Mode)</div>
+            <pre contenteditable="true" class="editable" id="res-body">
+{
+  "status": "blocked",
+  "reason": "security_violation",
+  "is_admin": false
+}
+            </pre>
+            <button class="btn" style="padding: 5px; font-size: 0.6rem;" onclick="applyRewrite()">APLICAR REWRITE</button>
+        </div>
+        <div class="panel">
+            <div class="panel-title">Hex / Protobuf View</div>
+            <pre style="color: #58a6ff;">
+00000000: 48 54 54 50 2f 31 2e 31  20 32 30 30 20 4f 4b 0d  HTTP/1.1 200 OK.
+00000010: 0a 43 6f 6e 74 65 6e 74  2d 54 79 70 65 3a 20 61  .Content-Type: a
+00000020: 70 70 6c 69 63 61 74 69  6f 6e 2f 6a 73 6f 6e 0d  pplication/json.
+            </pre>
+        </div>
+    </section>
+</main>
+
+<script>
+    // Lógica para puxar dados do APK (Simulação de integração com a raiz /sdcard/)
+    function syncAssets() {
+        alert("Sincronizando com Reqable_sign.apk...\n- Extraindo classes.dex\n- Mapeando /assets/flutter_assets\n- Localizando overrides-python.zip");
+        console.log("Assets Sync Complete.");
+    }
+
+    function inspect(el) {
+        const url = el.querySelector('.url').innerText;
+        console.log("Inspecionando: " + url);
+        // Aqui o código buscaria no log real do sistema
+    }
+
+    function applyRewrite() {
+        const newBody = document.getElementById('res-body').innerText;
+        alert("Script Python disparado! Modificando resposta para: " + newBody);
+        // Comando que enviaria o novo corpo para o motor Python no celular
+    }
+
+    function injectMagisk() {
+        alert("Gerando Módulo Magisk com Certificado CA User -> System...");
+    }
+</script>
+</body>
+</html>
