@@ -2,300 +2,142 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOD-MODE ENGINE | VYZ1000000000000/000</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;600&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    <title>VYZ ENGINE | GOD-MODE 1000000</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@700;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #0d1117;
-            --bg-panel: #161b22;
-            --bg-header: #010409;
-            --accent: #39ff14; /* Neon Green */
-            --accent-hover: #32d615;
-            --cyan: #00ffff;
-            --danger: #ff3366;
-            --text-main: #c9d1d9;
-            --text-muted: #8b949e;
-            --border: #30363d;
+            --bg-main: #080a0c; --bg-panel: #111418; --bg-header: #010204;
+            --accent: #39ff14; --cyan: #00ffff; --danger: #ff3366; --border: #262c34;
         }
-
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            height: 100vh;
-            display: grid;
-            grid-template-rows: 50px 1fr;
-            grid-template-columns: 280px 1fr 400px;
-            overflow: hidden;
+            font-family: 'Inter', sans-serif; background: var(--bg-main); color: #c9d1d9;
+            height: 100vh; display: grid; grid-template-rows: 60px 1fr; grid-template-columns: 280px 1fr 400px;
         }
 
-        /* TOP NAVIGATION */
+        /* HEADER */
         header {
-            grid-column: 1 / -1;
-            background: var(--bg-header);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
+            grid-column: 1 / -1; background: var(--bg-header); border-bottom: 2px solid var(--accent);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 25px;
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.1);
         }
+        .brand { font-weight: 900; font-size: 1.4rem; color: #fff; text-transform: uppercase; }
+        .brand span { color: var(--accent); text-shadow: 0 0 10px var(--accent); }
 
-        .brand { font-weight: 900; font-size: 1.2rem; color: #fff; letter-spacing: 1px; }
-        .brand span { color: var(--accent); }
+        /* STATUS INDICATOR */
+        .status-badge { display: flex; align-items: center; gap: 8px; font-family: 'Fira Code'; font-size: 0.8rem; }
+        .dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
 
-        .toolbar { display: flex; gap: 15px; align-items: center; }
-        
-        .btn {
-            background: var(--bg-panel); border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px 12px; border-radius: 4px; font-size: 0.8rem; font-family: 'Fira Code', monospace;
-            cursor: pointer; transition: all 0.2s;
-        }
-        .btn:hover { border-color: var(--accent); color: var(--accent); }
-        .btn-action { background: var(--accent); color: #000; border: none; font-weight: bold; }
-        .btn-action:hover { background: var(--accent-hover); box-shadow: 0 0 10px rgba(57, 255, 20, 0.4); }
-        .btn-danger { background: var(--danger); color: #fff; border: none; font-weight: bold; }
+        /* SIDEBAR & TABLES */
+        aside { background: var(--bg-panel); border-right: 1px solid var(--border); overflow-y: auto; }
+        .tree-item { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; transition: 0.2s; font-size: 0.85rem; }
+        .tree-item:hover { background: #1c2128; color: var(--accent); }
 
-        /* SIDEBAR */
-        aside {
-            background: var(--bg-panel);
-            border-right: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-header { padding: 15px; border-bottom: 1px solid var(--border); font-size: 0.8rem; font-weight: bold; color: var(--text-muted); text-transform: uppercase; }
-        .tree-view { padding: 10px; overflow-y: auto; flex: 1; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
-        .tree-item { padding: 8px; cursor: pointer; border-radius: 4px; display: flex; justify-content: space-between; }
-        .tree-item:hover { background: rgba(57, 255, 20, 0.1); }
-        .tree-item.active { background: rgba(57, 255, 20, 0.15); border-left: 3px solid var(--accent); }
-        .method-get { color: var(--cyan); }
-        .method-post { color: #e3b341; }
-        .method-ws { color: #b392f0; }
+        main { overflow-y: auto; background: var(--bg-main); }
+        .data-table { width: 100%; border-collapse: collapse; font-family: 'Fira Code'; font-size: 0.8rem; }
+        .data-table th { background: var(--bg-header); padding: 12px; text-align: left; color: #8b949e; border-bottom: 1px solid var(--border); position: sticky; top: 0; }
+        .data-table td { padding: 12px; border-bottom: 1px solid var(--border); transition: 0.1s; }
+        .data-table tr:hover td { background: rgba(57, 255, 20, 0.05); cursor: crosshair; }
 
-        /* MAIN TRAFFIC VIEW */
-        main { display: flex; flex-direction: column; background: var(--bg-main); }
-        
-        .data-table { width: 100%; border-collapse: collapse; font-family: 'Fira Code', monospace; font-size: 0.8rem; }
-        .data-table th { background: var(--bg-header); padding: 8px; text-align: left; border-bottom: 1px solid var(--border); color: var(--text-muted); position: sticky; top: 0; }
-        .data-table td { padding: 8px; border-bottom: 1px solid var(--border); }
-        .data-table tr:hover td { background: var(--bg-panel); cursor: pointer; }
-        .status-200 { color: var(--accent); }
-        .status-101 { color: var(--cyan); } /* WebSocket Protocol Switch */
+        /* INSPECTOR */
+        .inspector { background: var(--bg-panel); border-left: 1px solid var(--border); display: flex; flex-direction: column; }
+        .tabs { display: flex; background: var(--bg-header); }
+        .tab { flex: 1; padding: 15px; text-align: center; font-size: 0.8rem; font-weight: bold; cursor: pointer; border-bottom: 2px solid transparent; }
+        .tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(57, 255, 20, 0.05); }
 
-        /* INSPECTOR (RIGHT PANEL) */
-        .inspector {
-            background: var(--bg-panel);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-        }
-
-        /* Tabs System */
-        .tabs { display: flex; border-bottom: 1px solid var(--border); background: var(--bg-header); }
-        .tab { padding: 10px 15px; font-size: 0.85rem; font-weight: bold; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; }
-        .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-
-        .sub-tabs { display: flex; flex-wrap: wrap; background: var(--bg-main); border-bottom: 1px solid var(--border); padding: 5px 10px; gap: 5px; }
-        .sub-tab { padding: 5px 10px; font-size: 0.75rem; cursor: pointer; border-radius: 3px; color: var(--text-muted); font-family: 'Fira Code', monospace; }
-        .sub-tab:hover { background: var(--border); }
-        .sub-tab.active { background: rgba(0, 255, 255, 0.1); color: var(--cyan); }
-
-        /* Rewrite Control Center */
-        .rewrite-controls {
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .control-row { display: flex; gap: 10px; align-items: center; }
-        
-        select.dropdown {
-            background: var(--bg-main); border: 1px solid var(--border); color: var(--text-main);
-            padding: 6px; border-radius: 4px; font-family: 'Fira Code', monospace; font-size: 0.8rem; outline: none;
-        }
-        select.dropdown:focus { border-color: var(--cyan); }
-
-        .editor-container {
-            flex: 1;
-            padding: 10px;
-            overflow-y: auto;
-            background: #000;
-        }
-
+        .editor-container { flex: 1; background: #000; padding: 15px; }
         textarea.code-editor {
-            width: 100%;
-            height: 100%;
-            background: transparent;
-            border: none;
-            color: #d2a8ff;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            resize: none;
-            outline: none;
+            width: 100%; height: 100%; background: transparent; border: none; color: var(--cyan);
+            font-family: 'Fira Code'; font-size: 0.9rem; outline: none; resize: none;
         }
+
+        /* BUTTONS */
+        .btn { padding: 8px 16px; border-radius: 4px; cursor: pointer; border: 1px solid var(--border); background: var(--bg-panel); color: #fff; font-weight: 600; font-size: 0.75rem; }
+        .btn-action { background: var(--accent); color: #000; border: none; }
+        .btn-action:hover { background: #32d615; box-shadow: 0 0 15px var(--accent); }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand">GOD-MODE<span> ENGINE</span> VYZ1000000</div>
-        <div class="toolbar">
-            <span style="font-size: 0.8rem; color: var(--accent);">● INTERCEPTING (BRIDGE.PY ACTIVE)</span>
-            <button class="btn" onclick="togglePause()" id="btn-pause">⏸ Pause Intercept</button>
-            <button class="btn btn-danger" onclick="clearTraffic()">🗑 Clear</button>
-        </div>
-    </header>
+<header>
+    <div class="brand">GOD-MODE<span> ENGINE</span></div>
+    <div class="status-badge"><div class="dot"></div> ENGINE ACTIVE (BRIDGE ONLINE)</div>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn" onclick="clearLogs()">CLEAR LOGS</button>
+        <button class="btn btn-action" onclick="toggleIntercept()">INTERCEPT: ON</button>
+    </div>
+</header>
 
-    <aside>
-        <div class="sidebar-header">Target Tree</div>
-        <div class="tree-view">
-            <div class="tree-item active">
-                <span><span style="color:var(--text-muted);">▶</span> betnacional.bet.br</span>
-            </div>
-            <div class="tree-item" style="padding-left: 20px;">
-                <span class="method-ws">WS</span> <span>/socket.io/</span>
-            </div>
-            <div class="tree-item" style="padding-left: 20px;">
-                <span class="method-post">POST</span> <span>/api/v1/auth</span>
-            </div>
-            <div class="tree-item">
-                <span><span style="color:var(--text-muted);">▶</span> api.metrics.com</span>
-            </div>
-        </div>
+<aside id="target-tree">
+    <div style="padding: 15px; font-size: 0.7rem; color: var(--accent); font-weight: bold;">DISCOVERED ENDPOINTS</div>
     </aside>
 
-    <main>
-        <div style="overflow-y: auto; height: 100%;">
-            <table class="data-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Method</th>
-                        <th>URL</th>
-                        <th>Status</th>
-                        <th>Type</th>
-                        <th>Duration</th>
-                    </tr>
-                </thead>
-                <tbody id="traffic-body">
-                    <tr>
-                        <td>#1001</td>
-                        <td class="method-post">POST</td>
-                        <td>/api/v1/auth</td>
-                        <td class="status-200">200 OK</td>
-                        <td>Protobuf</td>
-                        <td>42ms</td>
-                    </tr>
-                    <tr>
-                        <td>#1002</td>
-                        <td class="method-ws">WS</td>
-                        <td>/socket.io/?EIO=4&transport=websocket</td>
-                        <td class="status-101">101 Switching</td>
-                        <td>Binary</td>
-                        <td>-</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </main>
+<main>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>TIME</th>
+                <th>METHOD</th>
+                <th>URL</th>
+                <th>STATUS</th>
+                <th>SIZE</th>
+            </tr>
+        </thead>
+        <tbody id="traffic-body">
+            </tbody>
+    </table>
+</main>
 
-    <div class="inspector">
-        
-        <div class="tabs">
-            <div class="tab">Request</div>
-            <div class="tab active">Response / Rewrite</div>
-        </div>
-
-        <div class="rewrite-controls">
-            <div style="font-size: 0.75rem; color: var(--cyan); font-weight: bold; text-transform: uppercase;">Rewrite Engine (God-Mode)</div>
-            <div class="control-row">
-                <select class="dropdown" id="format-selector">
-                    <option value="protobuf">⚙️ Protocol Buffers (Protobuf)</option>
-                    <option value="json" selected>📄 JSON (JavaScript Object Notation)</option>
-                    <option value="xml">📋 XML (Extensible Markup Language)</option>
-                    <option value="yaml">📜 YAML (Ain't Markup Language)</option>
-                    <option value="html">🌐 HTML</option>
-                </select>
-                <button class="btn btn-action" onclick="saveRule()">💾 Save as Auto-Response</button>
-            </div>
-            <div class="control-row">
-                <button class="btn" style="color: var(--accent); border-color: var(--accent);" onclick="forwardIntact()">🚀 Forward Intact (No Rewrite)</button>
-                <button class="btn" style="color: #e3b341; border-color: #e3b341;" onclick="applyPatch()">⚡ Apply Line Patch</button>
-            </div>
-        </div>
-
-        <div class="sub-tabs">
-            <div class="sub-tab">Summary</div>
-            <div class="sub-tab">Headers</div>
-            <div class="sub-tab">Query</div>
-            <div class="sub-tab active">Body</div>
-            <div class="sub-tab">Raw</div>
-            <div class="sub-tab">Raw 2</div>
-            <div class="sub-tab">WebSockets</div>
-            <div class="sub-tab">Comments</div>
-        </div>
-
-        <div class="editor-container">
-            <textarea class="code-editor" id="payload-editor" spellcheck="false">
-{
-    "status": "success",
-    "user_id": "VYZ-GOD",
-    "balance": 999999.99,
-    "auth_token": "proto_buf_mocked_token_xyz",
-    "is_premium": true,
-    "websocket_stream": "wss://betnacional.bet.br/stream/bypass"
-}</textarea>
-        </div>
+<div class="inspector">
+    <div class="tabs">
+        <div class="tab active">RESPONSE PAYLOAD</div>
+        <div class="tab">HEADERS</div>
+        <div class="tab">PROTOBUF HEX</div>
     </div>
+    <div class="editor-container">
+        <textarea id="editor" class="code-editor" spellcheck="false">// Select a request to inspect...</textarea>
+    </div>
+    <div style="padding: 20px; border-top: 1px solid var(--border); display: flex; flex-direction: column; gap: 10px;">
+        <button class="btn btn-action" onclick="injectPatch()">⚡ APPLY LINE PATCH (GOD-MODE)</button>
+        <button class="btn" style="color: var(--danger); border-color: var(--danger);" onclick="dropPacket()">DROP PACKET</button>
+    </div>
+</div>
 
-    <script>
-        // Funções da Interface VYZ1000000000000/000
-        let isPaused = false;
+<script>
+    const trafficBody = document.getElementById('traffic-body');
+    const editor = document.getElementById('editor');
 
-        function togglePause() {
-            isPaused = !isPaused;
-            const btn = document.getElementById('btn-pause');
-            if(isPaused) {
-                btn.innerHTML = "▶ Resume Intercept";
-                btn.style.borderColor = "var(--danger)";
-                btn.style.color = "var(--danger)";
-            } else {
-                btn.innerHTML = "⏸ Pause Intercept";
-                btn.style.borderColor = "var(--border)";
-                btn.style.color = "var(--text-main)";
-            }
-        }
+    // Conexão real com o Bridge.py
+    const ws = new WebSocket('ws://localhost:8765');
 
-        function clearTraffic() {
-            document.getElementById('traffic-body').innerHTML = '';
-        }
+    ws.onmessage = (event) => {
+        const req = JSON.parse(event.data);
+        addRequestToTable(req);
+    };
 
-        function saveRule() {
-            const format = document.getElementById('format-selector').value;
-            alert(`🔥 REGRA SALVA NO MOTOR BRIDGE.PY!\n\nQuando o APP fizer um GET nesta URL, o sistema vai interceptar e responder automaticamente em formato [${format.toUpperCase()}] usando este payload.`);
-        }
+    function addRequestToTable(req) {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${new Date().toLocaleTimeString()}</td>
+            <td style="color:${req.method === 'POST' ? '#e3b341' : '#00ffff'}">${req.method}</td>
+            <td style="max-width:300px; overflow:hidden; text-overflow:ellipsis;">${req.url}</td>
+            <td style="color:var(--accent)">200 OK</td>
+            <td>${req.size}b</td>
+        `;
+        row.onclick = () => {
+            editor.value = JSON.stringify(req.body, null, 4);
+        };
+        trafficBody.prepend(row);
+    }
 
-        function forwardIntact() {
-            alert("📦 PACOTE FECHADO!\n\nO tráfego será entregue ao aplicativo como pacote íntegro (Sem modificações). O Protobuf original será mantido.");
-        }
-
-        function applyPatch() {
-            alert("⚡ PATCH DE LINHA APLICADO!\n\nA modificação será injetada apenas nos nós alterados, preservando o restante do buffer binário.");
-        }
-
-        // Sistema visual de abas
-        document.querySelectorAll('.sub-tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            });
-        });
-    </script>
+    function clearLogs() { trafficBody.innerHTML = ''; editor.value = '// Logs cleared.'; }
+    
+    function injectPatch() {
+        alert("PATCH INJECTED: O motor bridge.py agora está forçando este payload no classes.dex!");
+        // Aqui você enviaria o novo JSON de volta via WS para o bridge.py salvar
+    }
+</script>
 </body>
-</html>
+    </html>
+    
